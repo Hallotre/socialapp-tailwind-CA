@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('followerCount').textContent = profile.data._count.followers;
             document.getElementById('followingCount').textContent = profile.data._count.following;
 
-            const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${user.name}/posts`, {
+            const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${user.name}/posts?_comments=true&_reactions=true`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                     'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p>${post.body}</p>
                         ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
                         <p>Comments: ${post._count.comments}</p>
-                        <p>Reactions: ${post._count.reactions}</p>
+                        <p>Likes: ${post._count.reactions}</p>
                     `;
                     userPostsList.appendChild(postElement);
                 });
@@ -68,6 +68,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    const postForm = document.getElementById('postForm');
+    if (postForm) {
+        postForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const title = document.getElementById('postTitle').value;
+            const body = document.getElementById('postContent').value;
+            const mediaUrl = document.getElementById('mediaUrl').value;
+
+            const postData = {
+                title,
+                body,
+                media: mediaUrl ? { url: mediaUrl } : undefined
+            };
+
+            try {
+                const response = await postService.createPost(postData);
+                if (response.data) {
+                    alert('Post created successfully!');
+                    loadUserPosts(); // Refresh the user's posts list
+
+                    // Clear the input fields
+                    document.getElementById('postTitle').value = '';
+                    document.getElementById('postContent').value = '';
+                    document.getElementById('mediaUrl').value = '';
+                } else {
+                    alert('Error creating post: ' + response.errors[0].message);
+                }
+            } catch (error) {
+                console.error('Error creating post:', error);
+            }
+        });
+    }
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -76,6 +109,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+async function loadUserPosts() {
+    const user = authService.getUser();
+    if (user) {
+        try {
+            const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${user.name}/posts?_comments=true&_reactions=true`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
+                }
+            });
+            const postsData = await postsResponse.json();
+            if (postsResponse.ok) {
+                const userPostsList = document.getElementById('userPostsList');
+                userPostsList.innerHTML = ''; // Clear existing posts
+                postsData.data.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.innerHTML = `
+                        <h3 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h3>
+                        <p>${post.body}</p>
+                        ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
+                        <p>Comments: ${post._count.comments}</p>
+                        <p>Reactions: ${post._count.reactions}</p>
+                    `;
+                    userPostsList.appendChild(postElement);
+                });
+            } else {
+                console.error('Error fetching user posts:', postsData.errors);
+            }
+        } catch (error) {
+            console.error('Error loading profile:', error);
+        }
+    }
+}
 
 // Ensure viewPost is defined in the global scope
 window.viewPost = function(postId) {

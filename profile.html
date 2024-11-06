@@ -24,6 +24,15 @@
             <p>Following: <span id="followingCount">0</span></p>
         </div>
         <button id="editProfileBtn">Edit Profile</button>
+        
+        <h3>Create a Post</h3>
+        <form id="postForm">
+            <input type="text" id="postTitle" name="title" placeholder="Title" required>
+            <textarea id="postContent" name="body" placeholder="Content" required></textarea>
+            <input type="url" id="mediaUrl" name="mediaUrl" placeholder="Media URL">
+            <button type="submit">Create Post</button>
+        </form>
+        
         <h3>User's Posts</h3>
         <div id="userPostsList">
             <!-- User's posts will be dynamically inserted here -->
