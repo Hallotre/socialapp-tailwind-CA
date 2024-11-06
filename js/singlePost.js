@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const currentUser = authService.getUser();
             const postContainer = document.getElementById('postContainer');
             postContainer.innerHTML = `
-                <h3>${data.data.title}</h3>
+                <h3><span class="clickable-username" onclick="viewProfile('${data.data.author.name}')">${data.data.author.name}</span></h3>
+                <h4>${data.data.title}</h4>
                 <p>${data.data.body}</p>
                 ${data.data.media ? `<img src="${data.data.media.url}" alt="Post media">` : ''}
-                <p>Author: ${data.data.author.name}</p>
                 <p>Comments: ${data.data._count.comments}</p>
                 <p>Likes: ${data.data._count.reactions}</p>
                 ${currentUser && currentUser.name === data.data.author.name ? `
@@ -82,4 +82,8 @@ window.deletePost = async function(postId) {
 
 window.editPost = function(postId) {
     window.location.href = `editPost.html?postId=${postId}`;
+};
+
+window.viewProfile = function(username) {
+    window.location.href = `profile.html?username=${username}`;
 };

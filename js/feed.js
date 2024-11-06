@@ -12,15 +12,13 @@ async function loadPosts() {
         const postsList = document.getElementById('postsList');
         postsList.innerHTML = ''; // Clear existing posts
         const currentUser = authService.getUser();
-        // console.log('Current User:', currentUser); // Debugging line
         data.data.forEach(post => {
-            // console.log('Post Author:', post.author); // Debugging line
             const postElement = document.createElement('div');
             postElement.innerHTML = `
-                <h3 onclick="viewPost(${post.id})">${post.title}</h3>
+                <h3><span class="clickable-username" onclick="viewProfile('${post.author.name}')">${post.author.name}</span></h3>
+                <h4 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h4>
                 <p>${post.body}</p>
                 ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
-                <p>Author: ${post.author.name}</p>
                 <p>Comments: ${post._count.comments}</p>
                 <p>Likes: ${post._count.reactions}</p>
                 ${currentUser && currentUser.name === post.author.name ? `
@@ -106,4 +104,7 @@ window.editPost = function(postId) {
 };
 window.viewPost = function(postId) {
     window.location.href = `singlePost.html?postId=${postId}`;
+};
+window.viewProfile = function(username) {
+    window.location.href = `profile.html?username=${username}`;
 };

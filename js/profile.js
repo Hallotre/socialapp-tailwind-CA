@@ -2,64 +2,85 @@ import { authService, profileService, postService } from './api.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (!authService.isAuthenticated()) {
-        alert('User not logged in. Please log in to view your profile.');
+        alert('User not logged in. Please log in to view profiles.');
         window.location.href = 'index.html'; // Redirect to login page
         return; // Exit the function
     }
 
-    const user = authService.getUser(); // Get the current user
-    if (user) {
-        try {
-            const profile = await profileService.getProfile(user.name);
-            document.getElementById('profileImage').src = profile.data.avatar.url || '';
-            document.getElementById('profileName').textContent = profile.data.name;
-            document.getElementById('profileBio').textContent = profile.data.bio || 'No bio yet';
-            document.getElementById('followerCount').textContent = profile.data._count.followers;
-            document.getElementById('followingCount').textContent = profile.data._count.following;
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    const currentUser = authService.getUser();
 
-            const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${user.name}/posts?_comments=true&_reactions=true`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
-                }
-            });
-            const postsData = await postsResponse.json();
-            if (postsResponse.ok) {
-                const userPostsList = document.getElementById('userPostsList');
+    let userToView = currentUser;
+    if (username && username !== currentUser.name) {
+        userToView = { name: username };
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const postForm = document.getElementById('postForm');
+        if (editProfileBtn) editProfileBtn.style.display = 'none'; // Hide edit profile button for other users
+        if (postForm) postForm.style.display = 'none'; // Hide create post form for other users
+    }
+
+    try {
+        const profile = await profileService.getProfile(userToView.name);
+        const profileImage = document.getElementById('profileImage');
+        const profileName = document.getElementById('profileName');
+        const profileBio = document.getElementById('profileBio');
+        const followerCount = document.getElementById('followerCount');
+        const followingCount = document.getElementById('followingCount');
+
+        if (profileImage) profileImage.src = profile.data.avatar.url || '';
+        if (profileName) profileName.textContent = profile.data.name;
+        if (profileBio) profileBio.textContent = profile.data.bio || 'No bio yet';
+        if (followerCount) followerCount.textContent = profile.data._count.followers;
+        if (followingCount) followingCount.textContent = profile.data._count.following;
+
+        const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${userToView.name}/posts?_comments=true&_reactions=true`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
+            }
+        });
+        const postsData = await postsResponse.json();
+        if (postsResponse.ok) {
+            const userPostsList = document.getElementById('userPostsList');
+            if (userPostsList) {
                 userPostsList.innerHTML = ''; // Clear existing posts
                 postsData.data.forEach(post => {
                     const postElement = document.createElement('div');
                     postElement.innerHTML = `
-                        <h3 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h3>
+                        <h4 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h4>
                         <p>${post.body}</p>
                         ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
                         <p>Comments: ${post._count.comments}</p>
-                        <p>Likes: ${post._count.reactions}</p>
+                        <p>Reactions: ${post._count.reactions}</p>
                     `;
                     userPostsList.appendChild(postElement);
                 });
-            } else {
-                console.error('Error fetching user posts:', postsData.errors);
             }
-        } catch (error) {
-            console.error('Error loading profile:', error);
+        } else {
+            console.error('Error fetching user posts:', postsData.errors);
         }
+    } catch (error) {
+        console.error('Error loading profile:', error);
     }
 
     const followBtn = document.getElementById('followBtn');
-    followBtn.addEventListener('click', async () => {
-        try {
-            const response = await profileService.followProfile(user.name);
-            if (response.data) {
-                alert('Followed successfully!');
-                document.getElementById('followerCount').textContent = response.data.followers.length;
-            } else {
-                alert('Error following user: ' + response.errors[0].message);
+    if (followBtn) {
+        followBtn.addEventListener('click', async () => {
+            try {
+                const response = await profileService.followProfile(userToView.name);
+                if (response.data) {
+                    alert('Followed successfully!');
+                    const followerCount = document.getElementById('followerCount');
+                    if (followerCount) followerCount.textContent = response.data.followers.length;
+                } else {
+                    alert('Error following user: ' + response.errors[0].message);
+                }
+            } catch (error) {
+                console.error('Error following user:', error);
             }
-        } catch (error) {
-            console.error('Error following user:', error);
-        }
-    });
+        });
+    }
 
     const editProfileBtn = document.getElementById('editProfileBtn');
     if (editProfileBtn) {
@@ -86,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const response = await postService.createPost(postData);
                 if (response.data) {
                     alert('Post created successfully!');
-                    loadUserPosts(); // Refresh the user's posts list
+                    loadUserPosts(userToView.name); // Refresh the user's posts list
 
                     // Clear the input fields
                     document.getElementById('postTitle').value = '';
@@ -110,24 +131,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-async function loadUserPosts() {
-    const user = authService.getUser();
-    if (user) {
-        try {
-            const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${user.name}/posts?_comments=true&_reactions=true`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
-                }
-            });
-            const postsData = await postsResponse.json();
-            if (postsResponse.ok) {
-                const userPostsList = document.getElementById('userPostsList');
+async function loadUserPosts(username) {
+    try {
+        const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${username}/posts?_comments=true&_reactions=true`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
+            }
+        });
+        const postsData = await postsResponse.json();
+        if (postsResponse.ok) {
+            const userPostsList = document.getElementById('userPostsList');
+            if (userPostsList) {
                 userPostsList.innerHTML = ''; // Clear existing posts
                 postsData.data.forEach(post => {
                     const postElement = document.createElement('div');
                     postElement.innerHTML = `
-                        <h3 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h3>
+                        <h4 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h4>
                         <p>${post.body}</p>
                         ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
                         <p>Comments: ${post._count.comments}</p>
@@ -135,16 +155,20 @@ async function loadUserPosts() {
                     `;
                     userPostsList.appendChild(postElement);
                 });
-            } else {
-                console.error('Error fetching user posts:', postsData.errors);
             }
-        } catch (error) {
-            console.error('Error loading profile:', error);
+        } else {
+            console.error('Error fetching user posts:', postsData.errors);
         }
+    } catch (error) {
+        console.error('Error loading user posts:', error);
     }
 }
 
-// Ensure viewPost is defined in the global scope
+// Ensure viewPost and viewProfile are defined in the global scope
 window.viewPost = function(postId) {
     window.location.href = `singlePost.html?postId=${postId}`;
+};
+
+window.viewProfile = function(username) {
+    window.location.href = `profile.html?username=${username}`;
 };
