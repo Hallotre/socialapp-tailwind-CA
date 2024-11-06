@@ -30,9 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 postsData.data.forEach(post => {
                     const postElement = document.createElement('div');
                     postElement.innerHTML = `
-                        <h3>${post.title}</h3>
+                        <h3 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h3>
                         <p>${post.body}</p>
                         ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
+                        <p>Comments: ${post._count.comments}</p>
+                        <p>Reactions: ${post._count.reactions}</p>
                     `;
                     userPostsList.appendChild(postElement);
                 });
@@ -74,3 +76,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
+// Ensure viewPost is defined in the global scope
+window.viewPost = function(postId) {
+    window.location.href = `singlePost.html?postId=${postId}`;
+};

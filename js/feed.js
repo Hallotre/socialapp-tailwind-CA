@@ -22,7 +22,7 @@ async function loadPosts() {
                 ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
                 <p>Author: ${post.author.name}</p>
                 <p>Comments: ${post._count.comments}</p>
-                <p>Reactions: ${post._count.reactions}</p>
+                <p>Likes: ${post._count.reactions}</p>
                 ${currentUser && currentUser.name === post.author.name ? `
                     <button onclick="editPost(${post.id})">Edit</button>
                     <button onclick="deletePost(${post.id})">Delete</button>
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.data) {
                     alert('Post created successfully!');
                     loadPosts(); // Refresh the posts list
-                    
+
                     // Clear the input fields
                     document.getElementById('postTitle').value = '';
                     document.getElementById('postContent').value = '';
