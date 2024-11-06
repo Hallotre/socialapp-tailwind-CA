@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post - Social Media</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="feed.html">Back to Feed</a>
+            <button id="logoutBtn">Logout</button>
+        </nav>
+    </header>
+    <main>
+        <h1>Edit Post</h1>
+        <form id="editPostForm">
+            <input type="hidden" id="editPostId">
+            <div>
+                <label for="editPostTitle">Title:</label>
+                <input type="text" id="editPostTitle" name="title" required>
+            </div>
+            <div>
+                <label for="editPostContent">Content:</label>
+                <textarea id="editPostContent" name="body" required></textarea>
+            </div>
+            <div>
+                <label for="tags">Tags (comma separated):</label>
+                <input type="text" id="tags" name="tags">
+            </div>
+            <div>
+                <label for="editMediaUrl">Media URL:</label>
+                <input type="url" id="editMediaUrl" name="mediaUrl">
+            </div>
+            <div>
+                <label for="mediaAlt">Image Alt Text:</label>
+                <input type="text" id="mediaAlt" name="mediaAlt">
+            </div>
+            <div>
+                <button type="submit">Save Changes</button>
+                <button type="button" id="cancelEditBtn">Cancel</button>
+            </div>
+        </form>
+    </main>
+    <script src="js/editPost.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media App - Feed</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="feed.html">Feed</a>
+            <a href="profile.html">Profile</a>
+            <button id="logoutBtn">Logout</button>
+        </nav>
+    </header>
+    <main>
+        <form id="postForm">
+            <input type="text" id="postTitle" name="title" placeholder="Title" required>
+            <textarea id="postContent" name="body" placeholder="Content" required></textarea>
+            <input type="url" id="mediaUrl" name="mediaUrl" placeholder="Media URL">
+            <button type="submit">Create Post</button>
+        </form>
+        <h2>Feed</h2>
+        <div id="postsList">
+            <!-- Posts will be dynamically inserted here -->
+        </div>
+        
+    </main>
+    <script src="js/feed.js" type="module"></script>
+</body>
+</html>

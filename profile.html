@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media App - Profile</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="feed.html">Feed</a>
+            <a href="profile.html">Profile</a>
+            <button id="logoutBtn">Logout</button>
+        </nav>
+    </header>
+    <main>
+        <h2>My Profile</h2>
+        <div id="profileInfo">
+            <img id="profileImage" src="" alt="Profile Image">
+            <h3 id="profileName">Username</h3>
+            <p id="profileBio">No bio yet</p>
+            <button id="followBtn">Follow</button>
+            <p>Followers: <span id="followerCount">0</span></p>
+            <p>Following: <span id="followingCount">0</span></p>
+        </div>
+        <button id="editProfileBtn">Edit Profile</button>
+        <h3>User's Posts</h3>
+        <div id="userPostsList">
+            <!-- User's posts will be dynamically inserted here -->
+        </div>
+    </main>
+    <script src="js/profile.js" type="module"></script>
+</body>
+</html>
