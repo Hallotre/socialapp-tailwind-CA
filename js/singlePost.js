@@ -38,8 +38,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             data.data.comments.forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.innerHTML = `
-                    <p>${comment.body}</p>
                     <p>By: ${comment.author.name}</p>
+                    <p>${comment.body}</p>
+                    
                 `;
                 commentsContainer.appendChild(commentElement);
             });
