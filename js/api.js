@@ -103,16 +103,7 @@ export const postService = {
         });
         return response.ok;
     },
-    async reactToPost(id, symbol) {
-        const response = await fetch(`${endpoints.posts}/${id}/react/${symbol}`, {
-            method: 'PUT',
-            headers: {
-                ...headers,
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-            }
-        });
-        return response.json();
-    },
+
     async commentOnPost(id, commentData) {
         const response = await fetch(`${endpoints.posts}/${id}/comment`, {
             method: 'POST',
