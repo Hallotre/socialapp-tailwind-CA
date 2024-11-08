@@ -20,7 +20,6 @@ async function loadPosts() {
                 <p>${post.body}</p>
                 ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
                 <p>Comments: ${post._count.comments}</p>
-                <p>Likes: ${post._count.reactions}</p>
                 ${currentUser && currentUser.name === post.author.name ? `
                     <button onclick="editPost(${post.id})">Edit</button>
                     <button onclick="deletePost(${post.id})">Delete</button>

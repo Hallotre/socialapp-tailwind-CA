@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <p>${data.data.body}</p>
                 ${data.data.media ? `<img src="${data.data.media.url}" alt="Post media">` : ''}
                 <p>Comments: ${data.data._count.comments}</p>
-                <p>Likes: ${data.data._count.reactions}</p>
                 ${currentUser && currentUser.name === data.data.author.name ? `
                     <button onclick="editPost(${data.data.id})">Edit</button>
                     <button onclick="deletePost(${data.data.id})">Delete</button>

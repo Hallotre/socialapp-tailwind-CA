@@ -164,7 +164,6 @@ async function loadUserPosts(username) {
                         <p>${post.body}</p>
                         ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
                         <p>Comments: ${post._count.comments}</p>
-                        <p>Reactions: ${post._count.reactions}</p>
                     `;
                     userPostsList.appendChild(postElement);
                 });
