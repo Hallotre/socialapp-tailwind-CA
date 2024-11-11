@@ -1,4 +1,16 @@
 # Social Media App
+## Showcase
+
+![image](https://github.com/user-attachments/assets/37a5fdc0-e3e0-4153-a0e1-a6a4762f5406)
+![image](https://github.com/user-attachments/assets/aa674c96-7f64-46b3-83b9-709278b94162)
+![image](https://github.com/user-attachments/assets/565b7db8-4c92-44b8-bd62-35eae3bf28f3)
+![image](https://github.com/user-attachments/assets/5532b502-6dff-455d-a470-9ffccb4ec311)
+![image](https://github.com/user-attachments/assets/55e3411e-cd14-4459-a823-185012d1ed82)
+![image](https://github.com/user-attachments/assets/97c63697-8215-4f6e-9473-c40d03d741e2)
+![image](https://github.com/user-attachments/assets/97232812-8ee3-4895-9c11-4b108e9a176f)
+![image](https://github.com/user-attachments/assets/853583ea-9821-400c-96e2-979ed3a20b1a)
+![image](https://github.com/user-attachments/assets/1d5662d6-4608-4719-b94b-56a3833df3a5)
+
 
 This is a simple social media application that allows users to authenticate, create posts, and manage their profiles. The application uses the Noroff Social API for backend functionality and is built with HTML, CSS (using Tailwind), and JavaScript.
 
