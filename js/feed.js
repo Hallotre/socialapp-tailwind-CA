@@ -1,23 +1,53 @@
 import { authService, postService } from './api.js';
 import { renderPosts } from './renderPosts.js';
 
-async function loadPosts() {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/posts?_author=true&_comments=true`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-            'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
-        }
-    });
-    const data = await response.json();
-    if (response.ok) {
-        renderPosts(data.data, 'postsList');
-    } else {
-        console.error('Error fetching posts:', data.errors);
-    }
-}
+document.addEventListener('DOMContentLoaded', async () => {
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadPosts();
+    async function loadPosts(query = '', sort = 'all') {
+        let url = `${import.meta.env.VITE_API_BASE_URL}/social/posts?_author=true&_comments=true`;
+        if (query) {
+            url = `${import.meta.env.VITE_API_BASE_URL}/social/posts/search?q=${query}&_author=true&_comments=true`;
+        }
+        if (sort === 'following') {
+            url = `${import.meta.env.VITE_API_BASE_URL}/social/posts/following?_author=true&_comments=true`;
+            if (query) {
+                url = `${import.meta.env.VITE_API_BASE_URL}/social/posts/following/search?q=${query}&_author=true&_comments=true`;
+            }
+        }
+
+        // console.log('Fetching posts from URL:', url); // Log the URL being fetched
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                renderPosts(data.data, 'postsList');
+            } else {
+                console.error('Error fetching posts:', data.errors);
+            }
+        } catch (error) {
+            console.error('Error loading posts:', error);
+        }
+    }
+
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value;
+        const sort = sortSelect.value;
+        loadPosts(query, sort);
+    });
+
+    sortSelect.addEventListener('change', () => {
+        const query = searchInput.value;
+        const sort = sortSelect.value;
+        loadPosts(query, sort);
+    });
 
     const postForm = document.getElementById('postForm');
     if (postForm) {
@@ -59,6 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html'; // Redirect to login page
         });
     }
+
+    // Initial load of posts
+    loadPosts();
 });
 
 async function deletePost(postId) {

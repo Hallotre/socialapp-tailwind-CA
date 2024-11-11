@@ -7,12 +7,12 @@ export async function renderPosts(postsData, containerId) {
     container.innerHTML = ''; // Clear existing posts
 
     postsData.forEach(post => {
-        console.log('post:', post); // Log each post to check its structure
+        // console.log('post:', post); // Log each post to check its structure
         const postElement = postTemplate.cloneNode(true);
         const postAuthorLink = postElement.querySelector('a');
 
         if (post.author) {
-            console.log('post.author:', post.author); // Log the author object to check its structure
+            // console.log('post.author:', post.author); // Log the author object to check its structure
             postAuthorLink.href = `profile.html?username=${post.author.name}`;
             postElement.querySelector('img').src = post.author.avatar?.url || '';
             postElement.querySelector('img').alt = post.author.name || 'Unknown';

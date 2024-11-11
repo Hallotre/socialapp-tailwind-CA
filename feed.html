@@ -7,7 +7,7 @@
     <link href="/src/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center">
-    <header class="w-full bg-gray-800 p-3">
+    <header class="w-full bg-gray-800 p-3 sticky top-0 z-50">
         <nav class="flex justify-between max-w-3xl mx-auto">
             <a href="feed.html" class="rounded-md bg-gray-900 px-5 py-2 text-sm font-medium text-white" aria-current="page">Feed</a>
             <a href="profile.html" class="rounded-md px-5 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Profile</a>
@@ -15,6 +15,13 @@
         </nav>
     </header>
     <main class="flex flex-col items-center w-full max-w-4xl p-4">
+        <div class="w-full flex justify-between mb-4">
+            <input type="text" id="searchInput" placeholder="Search posts..." class="input w-full bg-gray-700 border border-gray-600 rounded-lg pl-3 text-white mr-4">
+            <select id="sortSelect" class="input bg-gray-700 border border-gray-600 rounded-lg pl-3 text-white">
+                <option value="all">All Posts</option>
+                <option value="following">Following</option>
+            </select>
+        </div>
         <form id="postForm" class="w-full bg-gray-800 p-4 rounded-lg mb-6">
             <input type="text" id="postTitle" name="title" placeholder="Title" required
                    class="input w-full mb-4 bg-gray-700 border border-gray-600 rounded-lg pl-3 text-white">

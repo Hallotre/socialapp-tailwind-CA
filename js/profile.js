@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         userToView = { name: username };
         const editProfileBtn = document.getElementById('editProfileBtn');
         const postForm = document.getElementById('postForm');
+        const createPostTitle = document.querySelector('h3.text-2xl.font-bold.mb-4');
         if (editProfileBtn) editProfileBtn.style.display = 'none'; // Hide edit profile button for other users
         if (postForm) postForm.style.display = 'none'; // Hide create post form for other users
+        if (createPostTitle) createPostTitle.style.display = 'none'; // Hide create post title for other users
     }
 
     try {
