@@ -27,3 +27,4 @@ build/
 *.sw?
 Docs.md
 roadmap.md
+.vercel
