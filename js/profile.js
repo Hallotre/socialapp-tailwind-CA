@@ -161,7 +161,7 @@ async function loadUserPosts(username) {
             }
         });
         const postsData = await postsResponse.json();
-        console.log('postsData:', postsData); // Log the posts data to check its structure
+        // console.log('postsData:', postsData); // Log the posts data to check its structure
         if (postsResponse.ok) {
             renderPosts(postsData.data, 'userPostsList');
         } else {

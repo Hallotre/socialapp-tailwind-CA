@@ -36,7 +36,7 @@ registerForm.addEventListener('submit', async (e) => {
     const banner = bannerUrl ? { url: bannerUrl, alt: bannerAlt } : undefined;
 
     try {
-        const response = await authService.register(name, email, password, bio, avatar, banner, venueManager);
+        const response = await authService.register(name, email, password, bio, avatar, banner);
         if (response.data) {
             alert('Registration successful! You can now log in.');
             window.location.href = 'index.html'; // Redirect to login page
