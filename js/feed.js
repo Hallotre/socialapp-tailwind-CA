@@ -1,7 +1,8 @@
 import { authService, postService } from './api.js';
+import { renderPosts } from './renderPosts.js';
 
 async function loadPosts() {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/posts?_author=true&_comments=true&_reactions=true`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/posts?_author=true&_comments=true`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
             'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
@@ -9,24 +10,7 @@ async function loadPosts() {
     });
     const data = await response.json();
     if (response.ok) {
-        const postsList = document.getElementById('postsList');
-        postsList.innerHTML = ''; // Clear existing posts
-        const currentUser = authService.getUser();
-        data.data.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.innerHTML = `
-                <h3><span class="clickable-username" onclick="viewProfile('${post.author.name}')">${post.author.name}</span></h3>
-                <h4 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h4>
-                <p>${post.body}</p>
-                ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
-                <p>Comments: ${post._count.comments}</p>
-                ${currentUser && currentUser.name === post.author.name ? `
-                    <button onclick="editPost(${post.id})">Edit</button>
-                    <button onclick="deletePost(${post.id})">Delete</button>
-                ` : ''}
-            `;
-            postsList.appendChild(postElement);
-        });
+        renderPosts(data.data, 'postsList');
     } else {
         console.error('Error fetching posts:', data.errors);
     }
