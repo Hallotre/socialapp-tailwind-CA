@@ -15,9 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('editProfileEmail').value = profile.data.email;
             document.getElementById('editProfileBio').value = profile.data.bio || '';
             document.getElementById('editProfileAvatarUrl').value = profile.data.avatar.url || '';
-            document.getElementById('editProfileAvatarAlt').value = profile.data.avatar.alt || '';
-            document.getElementById('editProfileBannerUrl').value = profile.data.banner.url || '';
-            document.getElementById('editProfileBannerAlt').value = profile.data.banner.alt || '';
         } catch (error) {
             console.error('Error loading profile:', error);
         }
@@ -30,19 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const email = document.getElementById('editProfileEmail').value;
         const bio = document.getElementById('editProfileBio').value;
         const avatarUrl = document.getElementById('editProfileAvatarUrl').value;
-        const avatarAlt = document.getElementById('editProfileAvatarAlt').value;
-        const bannerUrl = document.getElementById('editProfileBannerUrl').value;
-        const bannerAlt = document.getElementById('editProfileBannerAlt').value;
 
-        const avatar = avatarUrl ? { url: avatarUrl, alt: avatarAlt } : undefined;
-        const banner = bannerUrl ? { url: bannerUrl, alt: bannerAlt } : undefined;
+        const avatar = avatarUrl ? { url: avatarUrl } : undefined;
 
         const profileData = {
             name,
             email,
             bio,
-            avatar,
-            banner
+            avatar
         };
 
         try {

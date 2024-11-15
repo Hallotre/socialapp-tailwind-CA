@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://v2.api.noroff.dev";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 const endpoints = {
@@ -17,21 +17,22 @@ let currentUser = null;
 
 export const authService = {
     async login(email, password) {
+        const requestBody = { email, password };
         const response = await fetch(endpoints.login, {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(requestBody)
         });
         const data = await response.json();
         if (!response.ok) {
             throw new Error(data.errors?.[0]?.message || 'Login failed');
         }
         currentUser = data.data;
-        // console.log('Login successful, currentUser:', currentUser); // Debugging line
         localStorage.setItem('accessToken', data.data.accessToken);
         localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Store current user in localStorage
         return data;
     },
+
     async register(name, email, password, bio, avatar, banner) {
         const requestBody = {
             name,
@@ -52,21 +53,22 @@ export const authService = {
         }
         return data;
     },
+
     getUser() {
         if (!currentUser) {
             currentUser = JSON.parse(localStorage.getItem('currentUser')); // Retrieve current user from localStorage
-            // console.log('Retrieved currentUser from localStorage:', currentUser); // Debugging line
         }
         return currentUser;
     },
+
     isAuthenticated() {
         return !!localStorage.getItem('accessToken');
     },
+
     logout() {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('currentUser');
         currentUser = null;
-        console.log('User logged out'); // Debugging line
     }
 };
 
@@ -82,6 +84,7 @@ export const postService = {
         });
         return response.json();
     },
+
     async updatePost(id, postData) {
         const response = await fetch(`${endpoints.posts}/${id}`, {
             method: 'PUT',
@@ -93,6 +96,7 @@ export const postService = {
         });
         return response.json();
     },
+
     async deletePost(id) {
         const response = await fetch(`${endpoints.posts}/${id}`, {
             method: 'DELETE',
@@ -105,7 +109,7 @@ export const postService = {
     },
 
     async commentOnPost(id, commentData) {
-        const response = await fetch(`${endpoints.posts}/${id}/comment`, {
+        const response = await fetch(`${endpoints.posts}/${id}/comments`, {
             method: 'POST',
             headers: {
                 ...headers,
@@ -125,8 +129,14 @@ export const profileService = {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
             }
         });
+        if (response.status === 401) {
+            authService.logout();
+            window.location.href = 'index.html'; // Redirect to login page
+            return;
+        }
         return response.json();
     },
+
     async updateProfile(name, profileData) {
         const response = await fetch(`${endpoints.profiles}/${name}`, {
             method: 'PUT',
@@ -138,6 +148,7 @@ export const profileService = {
         });
         return response.json();
     },
+
     async followProfile(name) {
         const response = await fetch(`${endpoints.profiles}/${name}/follow`, {
             method: 'PUT',
@@ -148,6 +159,7 @@ export const profileService = {
         });
         return response.json();
     },
+
     async unfollowProfile(name) {
         const response = await fetch(`${endpoints.profiles}/${name}/unfollow`, {
             method: 'PUT',

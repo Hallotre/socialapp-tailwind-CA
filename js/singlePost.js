@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/posts/${postId}?_author=true&_comments=true&_reactions=true`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/posts/${postId}?_author=true&_comments=true`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                 'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
@@ -21,26 +21,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (response.ok) {
             const currentUser = authService.getUser();
             const postContainer = document.getElementById('postContainer');
-            postContainer.innerHTML = `
-                <h3><span class="clickable-username" onclick="viewProfile('${data.data.author.name}')">${data.data.author.name}</span></h3>
-                <h4>${data.data.title}</h4>
-                <p>${data.data.body}</p>
-                ${data.data.media ? `<img src="${data.data.media.url}" alt="Post media">` : ''}
-                <p>Comments: ${data.data._count.comments}</p>
-                ${currentUser && currentUser.name === data.data.author.name ? `
-                    <button onclick="editPost(${data.data.id})">Edit</button>
-                    <button onclick="deletePost(${data.data.id})">Delete</button>
-                ` : ''}
-            `;
+            const postTemplate = document.getElementById('postTemplate').content;
+            const postElement = postTemplate.cloneNode(true);
+
+            postElement.querySelector('img').src = data.data.author.avatar.url;
+            postElement.querySelector('img').alt = data.data.author.name;
+            postElement.querySelector('h3').textContent = data.data.author.name;
+            postElement.querySelector('p.text-sm').textContent = new Date(data.data.created).toLocaleString();
+            postElement.querySelector('h4').textContent = data.data.title;
+            postElement.querySelector('p.mb-4').textContent = data.data.body;
+            if (data.data.media) {
+                const mediaElement = postElement.querySelector('img[alt="Post Media"]');
+                mediaElement.src = data.data.media.url;
+                mediaElement.classList.remove('hidden');
+            }
+            const editButton = postElement.querySelector('.edit-post-btn');
+            const deleteButton = postElement.querySelector('.delete-post-btn');
+            if (data.data.author.name === currentUser.name) {
+                editButton.classList.remove('hidden');
+                editButton.onclick = () => window.location.href = `editPost.html?postId=${data.data.id}`;
+                deleteButton.classList.remove('hidden');
+                deleteButton.onclick = () => deletePost(data.data.id);
+            }
+            postContainer.appendChild(postElement);
 
             const commentsContainer = document.getElementById('commentsContainer');
+            const commentTemplate = document.getElementById('commentTemplate').content;
             data.data.comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.innerHTML = `
-                    <p>By: ${comment.author.name}</p>
-                    <p>${comment.body}</p>
-                    
-                `;
+                const commentElement = commentTemplate.cloneNode(true);
+                commentElement.querySelector('img').src = comment.author.avatar.url;
+                commentElement.querySelector('img').alt = comment.author.name;
+                commentElement.querySelector('h4').textContent = comment.author.name;
+                commentElement.querySelector('p.text-sm').textContent = new Date(comment.created).toLocaleString();
+                commentElement.querySelector('p:not(.text-sm)').textContent = comment.body;
                 commentsContainer.appendChild(commentElement);
             });
         } else {
@@ -52,6 +65,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'feed.html';
     }
 
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const content = document.getElementById('commentContent').value;
+
+            const commentData = {
+                body: content
+            };
+
+            try {
+                const response = await postService.commentOnPost(postId, commentData);
+                if (response.data) {
+                    alert('Comment posted successfully!');
+                    window.location.reload(); // Reload the page to show the new comment
+                } else {
+                    alert('Error posting comment: ' + response.errors[0].message);
+                }
+            } catch (error) {
+                console.error('Error posting comment:', error);
+            }
+        });
+    }
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -61,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-window.deletePost = async function(postId) {
+async function deletePost(postId) {
     const confirmed = confirm('Are you sure you want to delete this post?');
     if (!confirmed) {
         return; // Exit the function if the user cancels the deletion
@@ -78,12 +115,4 @@ window.deletePost = async function(postId) {
     } catch (error) {
         console.error('Error deleting post:', error);
     }
-};
-
-window.editPost = function(postId) {
-    window.location.href = `editPost.html?postId=${postId}`;
-};
-
-window.viewProfile = function(username) {
-    window.location.href = `profile.html?username=${username}`;
-};
+}

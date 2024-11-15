@@ -1,4 +1,5 @@
 import { authService, profileService, postService } from './api.js';
+import { renderPosts } from './renderPosts.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (!authService.isAuthenticated()) {
@@ -16,8 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         userToView = { name: username };
         const editProfileBtn = document.getElementById('editProfileBtn');
         const postForm = document.getElementById('postForm');
+        const createPostTitle = document.querySelector('h3.text-2xl.font-bold.mb-4');
         if (editProfileBtn) editProfileBtn.style.display = 'none'; // Hide edit profile button for other users
         if (postForm) postForm.style.display = 'none'; // Hide create post form for other users
+        if (createPostTitle) createPostTitle.style.display = 'none'; // Hide create post title for other users
     }
 
     try {
@@ -35,39 +38,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (followerCount) followerCount.textContent = profile.data._count.followers;
         if (followingCount) followingCount.textContent = profile.data._count.following;
 
-        // Check if the current user is following the profile user
-        const isFollowing = profile.data.followers?.some(follower => follower.name === currentUser.name);
-        if (isFollowing) {
-            followBtn.textContent = 'Unfollow';
+        // Hide follow button if viewing own profile
+        if (userToView.name === currentUser.name) {
+            followBtn.style.display = 'none';
         } else {
-            followBtn.textContent = 'Follow';
-        }
-
-        followBtn.addEventListener('click', async () => {
-            try {
-                if (followBtn.textContent === 'Follow') {
-                    const response = await profileService.followProfile(userToView.name);
-                    if (response.data) {
-                        alert('Followed successfully!');
-                        followBtn.textContent = 'Unfollow';
-                        if (followerCount) followerCount.textContent = response.data.followers.length;
-                    } else {
-                        alert('Error following user: ' + response.errors[0].message);
-                    }
-                } else {
-                    const response = await profileService.unfollowProfile(userToView.name);
-                    if (response.data) {
-                        alert('Unfollowed successfully!');
-                        followBtn.textContent = 'Follow';
-                        if (followerCount) followerCount.textContent = response.data.followers.length;
-                    } else {
-                        alert('Error unfollowing user: ' + response.errors[0].message);
-                    }
-                }
-            } catch (error) {
-                console.error('Error following/unfollowing user:', error);
+            // Check if the current user is following the profile user
+            const isFollowing = profile.data.followers?.some(follower => follower.name === currentUser.name);
+            if (isFollowing) {
+                followBtn.textContent = 'Unfollow';
+            } else {
+                followBtn.textContent = 'Follow';
             }
-        });
+
+            followBtn.addEventListener('click', async () => {
+                try {
+                    if (followBtn.textContent === 'Follow') {
+                        const response = await profileService.followProfile(userToView.name);
+                        if (response.data) {
+                            alert('Followed successfully!');
+                            followBtn.textContent = 'Unfollow';
+                            if (followerCount) followerCount.textContent = response.data.followers.length;
+                        } else {
+                            alert('Error following user: ' + response.errors[0].message);
+                        }
+                    } else {
+                        const response = await profileService.unfollowProfile(userToView.name);
+                        if (response.data) {
+                            alert('Unfollowed successfully!');
+                            followBtn.textContent = 'Follow';
+                            if (followerCount) followerCount.textContent = response.data.followers.length;
+                        } else {
+                            alert('Error unfollowing user: ' + response.errors[0].message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error following/unfollowing user:', error);
+                }
+            });
+        }
 
         await loadUserPosts(userToView.name);
         displayFollowers(profile.data.followers);
@@ -146,28 +154,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadUserPosts(username) {
     try {
-        const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${username}/posts?_comments=true&_reactions=true`, {
+        const postsResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/profiles/${username}/posts?_author=true&_comments=true&_reactions=true`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
                 'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
             }
         });
         const postsData = await postsResponse.json();
+        // console.log('postsData:', postsData); // Log the posts data to check its structure
         if (postsResponse.ok) {
-            const userPostsList = document.getElementById('userPostsList');
-            if (userPostsList) {
-                userPostsList.innerHTML = ''; // Clear existing posts
-                postsData.data.forEach(post => {
-                    const postElement = document.createElement('div');
-                    postElement.innerHTML = `
-                        <h4 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h4>
-                        <p>${post.body}</p>
-                        ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
-                        <p>Comments: ${post._count.comments}</p>
-                    `;
-                    userPostsList.appendChild(postElement);
-                });
-            }
+            renderPosts(postsData.data, 'userPostsList');
         } else {
             console.error('Error fetching user posts:', postsData.errors);
         }

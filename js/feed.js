@@ -1,39 +1,53 @@
 import { authService, postService } from './api.js';
+import { renderPosts } from './renderPosts.js';
 
-async function loadPosts() {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/social/posts?_author=true&_comments=true&_reactions=true`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-            'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
+document.addEventListener('DOMContentLoaded', async () => {
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+
+    async function loadPosts(query = '', sort = 'all') {
+        let url = `${import.meta.env.VITE_API_BASE_URL}/social/posts?_author=true&_comments=true`;
+        if (query) {
+            url = `${import.meta.env.VITE_API_BASE_URL}/social/posts/search?q=${query}&_author=true&_comments=true`;
         }
-    });
-    const data = await response.json();
-    if (response.ok) {
-        const postsList = document.getElementById('postsList');
-        postsList.innerHTML = ''; // Clear existing posts
-        const currentUser = authService.getUser();
-        data.data.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.innerHTML = `
-                <h3><span class="clickable-username" onclick="viewProfile('${post.author.name}')">${post.author.name}</span></h3>
-                <h4 class="clickable-title" onclick="viewPost(${post.id})">${post.title}</h4>
-                <p>${post.body}</p>
-                ${post.media ? `<img src="${post.media.url}" alt="Post media">` : ''}
-                <p>Comments: ${post._count.comments}</p>
-                ${currentUser && currentUser.name === post.author.name ? `
-                    <button onclick="editPost(${post.id})">Edit</button>
-                    <button onclick="deletePost(${post.id})">Delete</button>
-                ` : ''}
-            `;
-            postsList.appendChild(postElement);
-        });
-    } else {
-        console.error('Error fetching posts:', data.errors);
-    }
-}
+        if (sort === 'following') {
+            url = `${import.meta.env.VITE_API_BASE_URL}/social/posts/following?_author=true&_comments=true`;
+            if (query) {
+                url = `${import.meta.env.VITE_API_BASE_URL}/social/posts/following/search?q=${query}&_author=true&_comments=true`;
+            }
+        }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadPosts();
+        // console.log('Fetching posts from URL:', url); // Log the URL being fetched
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'X-Noroff-API-Key': import.meta.env.VITE_API_KEY
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                renderPosts(data.data, 'postsList');
+            } else {
+                console.error('Error fetching posts:', data.errors);
+            }
+        } catch (error) {
+            console.error('Error loading posts:', error);
+        }
+    }
+
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value;
+        const sort = sortSelect.value;
+        loadPosts(query, sort);
+    });
+
+    sortSelect.addEventListener('change', () => {
+        const query = searchInput.value;
+        const sort = sortSelect.value;
+        loadPosts(query, sort);
+    });
 
     const postForm = document.getElementById('postForm');
     if (postForm) {
@@ -75,6 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html'; // Redirect to login page
         });
     }
+
+    // Initial load of posts
+    loadPosts();
 });
 
 async function deletePost(postId) {

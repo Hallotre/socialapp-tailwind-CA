@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const cancelBtn = document.getElementById('cancelEditBtn');
+    const cancelBtn = document.getElementById('cancelEditPostBtn'); // Corrected ID
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
             history.back(); // Navigate back to the last visited page

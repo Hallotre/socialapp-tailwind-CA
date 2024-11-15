@@ -4,41 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Post - Social Media</title>
+    <link href="/public/styles.css" rel="stylesheet">
 </head>
-<body>
-    <header>
-        <nav>
-            <a href="feed.html">Back to Feed</a>
-            <button id="logoutBtn">Logout</button>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center">
+    <header class="w-full bg-gray-800 p-3">
+        <nav class="flex justify-between max-w-3xl mx-auto">
+            <a href="feed.html" class="rounded-md px-5 py-2 text-sm font-medium text-white hover:bg-gray-700">Back to Feed</a>
+            <button id="logoutBtn" class="rounded-md px-5 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700">Logout</button>
         </nav>
     </header>
-    <main>
-        <h1>Edit Post</h1>
-        <form id="editPostForm">
+    <main class="flex flex-col items-center w-full max-w-4xl p-4">
+        <h1 class="text-3xl font-bold mb-4">Edit Post</h1>
+        <form id="editPostForm" class="w-full bg-gray-800 p-6 rounded-lg shadow-lg">
             <input type="hidden" id="editPostId">
-            <div>
-                <label for="editPostTitle">Title:</label>
-                <input type="text" id="editPostTitle" name="title" required>
+            <div class="mb-4">
+                <label for="editPostTitle" class="block text-sm font-medium text-white">Title:</label>
+                <input type="text" id="editPostTitle" name="title" required
+                       class="input w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg pl-3 text-white">
             </div>
-            <div>
-                <label for="editPostContent">Content:</label>
-                <textarea id="editPostContent" name="body" required></textarea>
+            <div class="mb-4">
+                <label for="editPostContent" class="block text-sm font-medium text-white">Content:</label>
+                <textarea id="editPostContent" name="body" required
+                          class="input w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg pl-3 text-white"></textarea>
             </div>
-            <div>
-                <label for="tags">Tags (comma separated):</label>
-                <input type="text" id="tags" name="tags">
+            <div class="mb-4">
+                <label for="editMediaUrl" class="block text-sm font-medium text-white">Media URL:</label>
+                <input type="url" id="editMediaUrl" name="mediaUrl"
+                       class="input w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg pl-3 text-white">
             </div>
-            <div>
-                <label for="editMediaUrl">Media URL:</label>
-                <input type="url" id="editMediaUrl" name="mediaUrl">
-            </div>
-            <div>
-                <label for="mediaAlt">Image Alt Text:</label>
-                <input type="text" id="mediaAlt" name="mediaAlt">
-            </div>
-            <div>
-                <button type="submit">Save Changes</button>
-                <button type="button" id="cancelEditBtn">Cancel</button>
+            <div class="flex justify-between">
+                <button type="submit" class="btn btn-primary bg-blue-500 text-white hover:bg-blue-600 rounded-lg px-4 py-2">Save Changes</button>
+                <button type="button" id="cancelEditPostBtn" class="btn bg-gray-700 text-white hover:bg-gray-600 rounded-lg px-4 py-2">Cancel</button>
             </div>
         </form>
     </main>
